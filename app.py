@@ -151,7 +151,9 @@ if __name__ == "__main__":
         print("===============================================================\n")
         print("################## Press Ctrl + C to exit #####################\n")
         try:
-            result = actions.get_utterance()
+            # Suppress ALSA warnings
+            with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
+                result = actions.get_utterance()
             print(f"Transcript: {result}")
         except Exception as e:
             print(f"Error during audio recording: {str(e)}")
