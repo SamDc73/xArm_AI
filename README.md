@@ -21,9 +21,32 @@ To download this project, follow these steps:
 
 5. You have now successfully downloaded the project. You can proceed with any additional setup or installation steps required for the project.
 
-## Additional Setup (if applicable)
+## Additional Setup
 
-[Include any additional setup instructions here, such as installing dependencies, setting up environment variables, etc.]
+1. Set up the IP address:
+   - Open the `config.txt` file in the project root directory.
+   - Add or modify the following line with your desired IP address:
+     ```
+     IP_ADDRESS=your_ip_address_here
+     ```
+   - Save and close the file.
+
+2. Export the GPT API key:
+   - Open your terminal or command prompt.
+   - Run the following command, replacing `your_api_key_here` with your actual GPT API key:
+     ```
+     export GPT_API_KEY=your_api_key_here
+     ```
+   - Alternatively, you can add this line to your shell configuration file (e.g., `.bashrc` or `.zshrc`) to make it persistent across terminal sessions.
+
+3. Install dependencies:
+   - Make sure you have Python 3.7 or higher installed.
+   - Run the following command to install the required packages:
+     ```
+     pip install -r requirements.txt
+     ```
+
+[Include any other additional setup instructions here, such as setting up environment variables, etc.]
 
 ## Usage
 
