@@ -73,3 +73,36 @@ document.getElementById('recordButton').addEventListener('click', function() {
         })
         .catch(error => alert('Error accessing microphone: ' + error));
 });
+document.getElementById("start-recording").addEventListener("click", function() {
+    fetch("/start-recording", {
+        method: "POST",
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(data.message);
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+});
+
+document.getElementById("stop-recording").addEventListener("click", function() {
+    fetch("/stop-recording", {
+        method: "POST",
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(data.message);
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+});
