@@ -52,21 +52,30 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     startRecordingButton.addEventListener('click', function() {
         console.log('Start recording button clicked');
+        
+        // Request microphone permission
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
-                console.log('Got user media stream');
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
+                console.log('Microphone permission granted');
+                startRecordingButton.textContent = 'Start Recording';
+                startRecordingButton.disabled = false;
+                
+                // Add a new click event listener for actual recording
+                startRecordingButton.onclick = function() {
+                    console.log('Starting recording');
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
 
-                audioChunks = [];
-                mediaRecorder.addEventListener("dataavailable", event => {
-                    audioChunks.push(event.data);
-                    console.log('Audio chunk added');
-                });
+                    audioChunks = [];
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                        console.log('Audio chunk added');
+                    });
 
-                startRecordingButton.disabled = true;
-                stopRecordingButton.disabled = false;
-                console.log('Recording started');
+                    startRecordingButton.disabled = true;
+                    stopRecordingButton.disabled = false;
+                    console.log('Recording started');
+                };
             })
             .catch(error => {
                 console.error('Error accessing microphone:', error);
@@ -84,6 +93,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 transcriptionDiv.textContent = errorMessage;
             });
     });
+
+    // Change the initial text of the start button
+    startRecordingButton.textContent = 'Request Microphone Permission';
 
     stopRecordingButton.addEventListener('click', function() {
         console.log('Stop recording button clicked');
