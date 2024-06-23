@@ -118,10 +118,28 @@ if __name__ == "__main__":
         description="Start the Flask web server for the Robotic Arm Controller."
     )
     parser.add_argument("-W", "--web", action="store_true", help="Start the web server")
+    parser.add_argument("-A", "--audio", action="store_true", help="Start audio recording from the terminal")
 
     args = parser.parse_args()
 
     if args.web:
+        port = 5000
+        os.system("clear")
+        print("\n===============================================================")
+        print("  Robotic Arm Controller Server is running...")
+        print(f"  Please open your browser and visit http://localhost:{port}")
+        print("===============================================================\n")
+        print("################## Press Ctrl + C to exit #####################\n")
+
+        app.run(debug=True, host="0.0.0.0", port=port)
+    elif args.audio:
+        os.system("clear")
+        print("\n===============================================================")
+        print("  Starting audio recording...")
+        print("===============================================================\n")
+        print("################## Press Ctrl + C to exit #####################\n")
+        result = actions.get_utterance()
+        print(f"Transcript: {result}")
         port = 5000
         os.system("clear")
         print("\n===============================================================")
