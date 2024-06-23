@@ -50,87 +50,84 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const stopRecordingButton = document.getElementById('stopRecording');
     const transcriptionDiv = document.getElementById('transcription');
 
-    startRecordingButton.addEventListener('click', function() {
+    startRecordingButton.addEventListener('click', async function() {
         console.log('Start recording button clicked');
         
         if (!mediaRecorder) {
-            // Request microphone permission
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    console.log('Microphone permission granted');
-                    mediaRecorder = new MediaRecorder(stream);
-                    startRecording();
-                })
-                .catch(error => {
-                    console.error('Error accessing microphone:', error);
-                    let errorMessage = 'Error accessing microphone: ' + (error.message || 'Unknown error occurred.');
-                    alert(errorMessage);
-                    transcriptionDiv.textContent = errorMessage;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log('Microphone permission granted');
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                    console.log('Audio chunk added');
                 });
-        } else {
-            startRecording();
+
+                mediaRecorder.addEventListener("stop", handleRecordingStop);
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+                let errorMessage = 'Error accessing microphone: ' + (error.message || 'Unknown error occurred.');
+                alert(errorMessage);
+                transcriptionDiv.textContent = errorMessage;
+                return;
+            }
         }
+
+        startRecording();
     });
 
     function startRecording() {
         console.log('Starting recording');
-        mediaRecorder.start();
-
         audioChunks = [];
-        mediaRecorder.addEventListener("dataavailable", event => {
-            audioChunks.push(event.data);
-            console.log('Audio chunk added');
-        });
-
+        mediaRecorder.start();
         startRecordingButton.disabled = true;
         stopRecordingButton.disabled = false;
         console.log('Recording started');
     }
 
-    // Set the initial text of the start button
-    startRecordingButton.textContent = 'Start Recording';
-
     stopRecordingButton.addEventListener('click', function() {
         console.log('Stop recording button clicked');
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
-            mediaRecorder.addEventListener("stop", () => {
-                console.log('MediaRecorder stopped');
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const formData = new FormData();
-                formData.append('audio', audioBlob, 'audio.wav');
-
-                console.log('Sending audio to server');
-                fetch('/upload-audio', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Server response:', data);
-                    if (data.status === 'success') {
-                        transcriptionDiv.textContent = data.transcript || 'No transcription available';
-                    } else {
-                        transcriptionDiv.textContent = 'Error: ' + data.message;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    transcriptionDiv.textContent = 'Error: ' + error.message;
-                });
-
-                startRecordingButton.disabled = false;
-                stopRecordingButton.disabled = true;
-            });
         } else {
             console.log('MediaRecorder is not active');
         }
     });
+
+    function handleRecordingStop() {
+        console.log('MediaRecorder stopped');
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'audio.wav');
+
+        console.log('Sending audio to server');
+        fetch('/upload-audio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.status === 'success') {
+                transcriptionDiv.textContent = data.transcript || 'No transcription available';
+            } else {
+                transcriptionDiv.textContent = 'Error: ' + data.message;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            transcriptionDiv.textContent = 'Error: ' + error.message;
+        });
+
+        startRecordingButton.disabled = false;
+        stopRecordingButton.disabled = true;
+    }
 
     console.log('Audio recording script loaded');
 });
