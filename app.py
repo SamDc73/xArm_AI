@@ -76,25 +76,6 @@ def gripper():
             )
 
 
-def get_utterance(audio_data=None):
-    r = sr.Recognizer()
-    if audio_data:
-        audio = sr.AudioFile(audio_data)
-        with audio as source:
-            audio = r.record(source)
-    else:
-        with sr.Microphone() as source:
-            try:
-                # Adjust for ambient noise and set a higher threshold
-                print("Adjusting for ambient noise. Please wait...")
-                r.adjust_for_ambient_noise(source, duration=3)
-                print("Say something!")
-                audio = r.listen(source, timeout=60, phrase_time_limit=5)
-                print("Processing...")
-                # Simulate processing here
-            except Exception as e:
-                print(f"Error: {str(e)}")  # Customize or handle logging
-                return "Device not connected or audio setup issue."
 
 
 @app.route("/")
@@ -113,7 +94,7 @@ def upload_audio():
     audio_data = audio_file.read()
 
     try:
-        result = get_utterance(audio_data=audio_data)
+        result = actions.get_utterance(audio_data=audio_data)
         return jsonify({"status": "success", "message": "Audio processed successfully", "transcript": result}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

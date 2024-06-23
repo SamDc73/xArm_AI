@@ -53,20 +53,28 @@ def arm_gripper(action, force=None):
         arm.set_gripper_position(arm.gripper.get_close_position())
         
 
-def get_utterance():
-    # Obtain audio from the microphone
+def get_utterance(audio_data=None):
     r = sr.Recognizer()
-    with sr.Microphone() as source:
-        # Adjust for ambient noise and set a higher threshold
-        print("Adjusting for ambient noise. Please wait...")
-        r.adjust_for_ambient_noise(source, duration=3)
-        r.dynamic_energy_threshold = True
-        r.energy_threshold = 4000  # Increase this value for noisier environments
+    if audio_data:
+        audio = sr.AudioFile(io.BytesIO(audio_data))
+        with audio as source:
+            audio = r.record(source)
+    else:
+        with sr.Microphone() as source:
+            try:
+                # Adjust for ambient noise and set a higher threshold
+                print("Adjusting for ambient noise. Please wait...")
+                r.adjust_for_ambient_noise(source, duration=3)
+                r.dynamic_energy_threshold = True
+                r.energy_threshold = 4000  # Increase this value for noisier environments
 
-        print("Say something!")
+                print("Say something!")
 
-        # Increase timeout and phrase time limit
-        audio = r.listen(source, timeout=60, phrase_time_limit=5)
+                # Increase timeout and phrase time limit
+                audio = r.listen(source, timeout=60, phrase_time_limit=5)
+            except Exception as e:
+                print(f"Error: {str(e)}")  # Customize or handle logging
+                return "Device not connected or audio setup issue."
 
     print("Processing...")
 
