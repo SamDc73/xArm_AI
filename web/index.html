@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Robotic Arm Controller</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Robotic Arm Control Panel</h1>
+    <div>
+      <h2>Rotate Arm</h2>
+      <input type="number" id="degreesX" placeholder="Degrees X" />
+      <input type="number" id="degreesY" placeholder="Degrees Y" />
+      <input type="number" id="degreesZ" placeholder="Degrees Z" />
+      <button onclick="rotateArm()">Rotate</button>
+    </div>
+    <div>
+      <h2>Translate Arm</h2>
+      <input type="number" id="translateX" placeholder="X Axis" />
+      <input type="number" id="translateY" placeholder="Y Axis" />
+      <input type="number" id="translateZ" placeholder="Z Axis" />
+      <button onclick="translateArm()">Translate</button>
+    </div>
+    <div>
+      <h2>Gripper Control</h2>
+      <select id="gripperAction">
+        <option value="open">Open</option>
+        <option value="close">Close</option>
+      </select>
+      <input type="number" id="gripperForce" placeholder="Force (0-100)" />
+      <button onclick="controlGripper()">Control Gripper</button>
+    </div>
+    <button id="recordButton">Start Recording</button>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
