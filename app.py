@@ -118,7 +118,6 @@ if __name__ == "__main__":
         description="Start the Flask web server for the Robotic Arm Controller."
     )
     parser.add_argument("-W", "--web", action="store_true", help="Start the web server")
-    parser.add_argument("-R", "--record", action="store_true", help="Record audio from the terminal")
 
     args = parser.parse_args()
 
@@ -132,11 +131,4 @@ if __name__ == "__main__":
         print("################## Press Ctrl + C to exit #####################\n")
 
         app.run(debug=True, host="0.0.0.0", port=port)
-    elif args.record:
-        result = actions.get_utterance()
-        if "Error" in result:
-            print(f"Recording failed: {result}")
-        else:
-            print(f"Recording successful: {result}")
-        print("Web server not started. Use '--web' or '-W' to start the server.")
         print("Web server not started. Use '--web' or '-W' to start the server.")
