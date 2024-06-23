@@ -51,44 +51,68 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const transcriptionDiv = document.getElementById('transcription');
 
     startRecordingButton.addEventListener('click', function() {
+        console.log('Start recording button clicked');
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
+                console.log('Got user media stream');
                 mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.start();
 
                 audioChunks = [];
                 mediaRecorder.addEventListener("dataavailable", event => {
                     audioChunks.push(event.data);
+                    console.log('Audio chunk added');
                 });
 
                 startRecordingButton.disabled = true;
                 stopRecordingButton.disabled = false;
+                console.log('Recording started');
             })
-            .catch(error => console.error('Error accessing microphone:', error));
+            .catch(error => {
+                console.error('Error accessing microphone:', error);
+                alert('Error accessing microphone: ' + error.message);
+            });
     });
 
     stopRecordingButton.addEventListener('click', function() {
+        console.log('Stop recording button clicked');
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
             mediaRecorder.addEventListener("stop", () => {
+                console.log('MediaRecorder stopped');
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                 const formData = new FormData();
                 formData.append('audio', audioBlob, 'audio.wav');
 
+                console.log('Sending audio to server');
                 fetch('/upload-audio', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     console.log('Server response:', data);
-                    transcriptionDiv.textContent = data.transcript || 'No transcription available';
+                    if (data.status === 'success') {
+                        transcriptionDiv.textContent = data.transcript || 'No transcription available';
+                    } else {
+                        transcriptionDiv.textContent = 'Error: ' + data.message;
+                    }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    transcriptionDiv.textContent = 'Error: ' + error.message;
+                });
 
                 startRecordingButton.disabled = false;
                 stopRecordingButton.disabled = true;
             });
+        } else {
+            console.log('MediaRecorder is not active');
         }
     });
 
