@@ -116,16 +116,25 @@ def upload_audio():
 @app.route('/start-recording', methods=['POST'])
 def start_recording():
     try:
+        print("Starting audio recording...")
         result = actions.get_utterance()
+        print(f"Recording result: {result}")
+        
+        if result is None or result == "":
+            return jsonify({'status': 'error', 'message': 'No audio recorded or transcribed'}), 500
+        
         if "Error" in result:
             return jsonify({'status': 'error', 'message': result}), 500
-        return jsonify({'status': 'success', 'message': 'Recording started successfully', 'transcript': result}), 200
+        
+        return jsonify({'status': 'success', 'message': 'Recording completed successfully', 'transcript': result}), 200
     except Exception as e:
+        print(f"Error during recording: {str(e)}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/stop-recording', methods=['POST'])
 def stop_recording():
     # Implement the logic to stop recording if needed
+    print("Stop recording endpoint called")
     return jsonify({'status': 'success', 'message': 'Recording stopped successfully'})
 
 
