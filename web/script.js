@@ -53,49 +53,42 @@ document.addEventListener('DOMContentLoaded', (event) => {
     startRecordingButton.addEventListener('click', function() {
         console.log('Start recording button clicked');
         
-        // Request microphone permission
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                console.log('Microphone permission granted');
-                startRecordingButton.textContent = 'Start Recording';
-                startRecordingButton.disabled = false;
-                
-                // Add a new click event listener for actual recording
-                startRecordingButton.onclick = function() {
-                    console.log('Starting recording');
+        if (!mediaRecorder) {
+            // Request microphone permission
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    console.log('Microphone permission granted');
                     mediaRecorder = new MediaRecorder(stream);
-                    mediaRecorder.start();
-
-                    audioChunks = [];
-                    mediaRecorder.addEventListener("dataavailable", event => {
-                        audioChunks.push(event.data);
-                        console.log('Audio chunk added');
-                    });
-
-                    startRecordingButton.disabled = true;
-                    stopRecordingButton.disabled = false;
-                    console.log('Recording started');
-                };
-            })
-            .catch(error => {
-                console.error('Error accessing microphone:', error);
-                let errorMessage = 'Error accessing microphone: ';
-                if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    errorMessage += 'No microphone found. Please ensure a microphone is connected and granted permission.';
-                } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    errorMessage += 'Permission to access the microphone was denied. Please grant permission and try again.';
-                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                    errorMessage += 'Unable to access the microphone. It may be in use by another application.';
-                } else {
-                    errorMessage += error.message || 'Unknown error occurred.';
-                }
-                alert(errorMessage);
-                transcriptionDiv.textContent = errorMessage;
-            });
+                    startRecording();
+                })
+                .catch(error => {
+                    console.error('Error accessing microphone:', error);
+                    let errorMessage = 'Error accessing microphone: ' + (error.message || 'Unknown error occurred.');
+                    alert(errorMessage);
+                    transcriptionDiv.textContent = errorMessage;
+                });
+        } else {
+            startRecording();
+        }
     });
 
-    // Change the initial text of the start button
-    startRecordingButton.textContent = 'Request Microphone Permission';
+    function startRecording() {
+        console.log('Starting recording');
+        mediaRecorder.start();
+
+        audioChunks = [];
+        mediaRecorder.addEventListener("dataavailable", event => {
+            audioChunks.push(event.data);
+            console.log('Audio chunk added');
+        });
+
+        startRecordingButton.disabled = true;
+        stopRecordingButton.disabled = false;
+        console.log('Recording started');
+    }
+
+    // Set the initial text of the start button
+    startRecordingButton.textContent = 'Start Recording';
 
     stopRecordingButton.addEventListener('click', function() {
         console.log('Stop recording button clicked');
