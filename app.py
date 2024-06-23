@@ -8,7 +8,7 @@ import argparse
 import os
 import contextlib
 
-app = Flask(__name__, static_folder="web/static", template_folder="web")
+app = Flask(__name__, static_folder="web", template_folder="web")
 
 
 @app.route("/rotate", methods=["POST"])
