@@ -70,7 +70,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
             })
             .catch(error => {
                 console.error('Error accessing microphone:', error);
-                alert('Error accessing microphone: ' + error.message);
+                let errorMessage = 'Error accessing microphone: ';
+                if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorMessage += 'No microphone found. Please ensure a microphone is connected and granted permission.';
+                } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage += 'Permission to access the microphone was denied. Please grant permission and try again.';
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    errorMessage += 'Unable to access the microphone. It may be in use by another application.';
+                } else {
+                    errorMessage += error.message || 'Unknown error occurred.';
+                }
+                alert(errorMessage);
+                transcriptionDiv.textContent = errorMessage;
             });
     });
 
