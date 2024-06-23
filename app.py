@@ -145,7 +145,7 @@ if __name__ == "__main__":
         print("################## Press Ctrl + C to exit #####################\n")
 
         app.run(debug=True, host="0.0.0.0", port=port)
-    elif args.audio:
+    if args.audio:
         os.system("clear")
         print("\n===============================================================")
         print("  Starting audio recording...")
@@ -158,13 +158,3 @@ if __name__ == "__main__":
             print(f"Transcript: {result}")
         except Exception as e:
             print(f"Error during audio recording: {str(e)}")
-        port = 5000
-        os.system("clear")
-        print("\n===============================================================")
-        print("  Robotic Arm Controller Server is running...")
-        print(f"  Please open your browser and visit http://localhost:{port}")
-        print("===============================================================\n")
-        print("################## Press Ctrl + C to exit #####################\n")
-
-        app.run(debug=True, host="0.0.0.0", port=port)
-        print("Web server not started. Use '--web' or '-W' to start the server.")
