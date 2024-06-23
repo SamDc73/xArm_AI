@@ -30,8 +30,9 @@
       <input type="number" id="gripperForce" placeholder="Force (0-100)" />
       <button onclick="controlGripper()">Control Gripper</button>
     </div>
-    <button id="recordButton">Start Recording</button>
-    <button id="stop-recording">Stop Recording</button>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <button id="startRecording">Start Recording</button>
+    <button id="stopRecording" disabled>Stop Recording</button>
+    <div id="transcription"></div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
