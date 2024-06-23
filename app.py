@@ -163,16 +163,36 @@ if __name__ == "__main__":
         print("===============================================================\n")
         print("################## Press Ctrl + C to exit #####################\n")
 
-        app.run(debug=True, host="0.0.0.0", port=port)
         if args.audio:
-            os.system("clear")
-            print("\n===============================================================")
-            print("  Starting audio recording...")
-            print("===============================================================\n")
-            print("################## Press Ctrl + C to exit #####################\n")
-            try:
-                # Suppress ALSA warnings
-                with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
-                    run_audio_conversation()
-            except Exception as e:
-                print(f"Error during audio recording: {str(e)}")
+            import threading
+
+            def run_audio():
+                os.system("clear")
+                print("\n===============================================================")
+                print("  Starting audio recording...")
+                print("===============================================================\n")
+                print("################## Press Ctrl + C to exit #####################\n")
+                try:
+                    # Suppress ALSA warnings
+                    with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
+                        run_audio_conversation()
+                except Exception as e:
+                    print(f"Error during audio recording: {str(e)}")
+
+            audio_thread = threading.Thread(target=run_audio)
+            audio_thread.start()
+
+        app.run(debug=True, host="0.0.0.0", port=port)
+
+    elif args.audio:
+        os.system("clear")
+        print("\n===============================================================")
+        print("  Starting audio recording...")
+        print("===============================================================\n")
+        print("################## Press Ctrl + C to exit #####################\n")
+        try:
+            # Suppress ALSA warnings
+            with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
+                run_audio_conversation()
+        except Exception as e:
+            print(f"Error during audio recording: {str(e)}")
