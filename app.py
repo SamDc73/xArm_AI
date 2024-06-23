@@ -113,9 +113,20 @@ def upload_audio():
     except Exception as e:
         return jsonify({"status": "error", "message": "Failed to read audio file"}), 400
 
+@app.route('/start-recording', methods=['POST'])
 def start_recording():
-    # Dummy return to test the web app functionality
-    return jsonify({"status": "success", "message": "Recording would start"})
+    try:
+        result = actions.get_utterance()
+        if "Error" in result:
+            return jsonify({'status': 'error', 'message': result}), 500
+        return jsonify({'status': 'success', 'message': 'Recording started successfully', 'transcript': result}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/stop-recording', methods=['POST'])
+def stop_recording():
+    # Implement the logic to stop recording if needed
+    return jsonify({'status': 'success', 'message': 'Recording stopped successfully'})
 
 
 # @app.route('/start-recording', methods=['POST'])
