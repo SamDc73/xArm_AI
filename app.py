@@ -139,3 +139,4 @@ if __name__ == "__main__":
         else:
             print(f"Recording successful: {result}")
         print("Web server not started. Use '--web' or '-W' to start the server.")
+        print("Web server not started. Use '--web' or '-W' to start the server.")
