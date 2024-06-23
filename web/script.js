@@ -42,67 +42,47 @@ function controlGripper() {
       .catch(error => alert('Error: ' + error));
 }
 
-document.getElementById('recordButton').addEventListener('click', function() {
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById('startRecording').addEventListener('click', function() {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
-            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.start();
 
-            const audioChunks = [];
+            audioChunks = [];
             mediaRecorder.addEventListener("dataavailable", event => {
                 audioChunks.push(event.data);
             });
 
-            mediaRecorder.addEventListener("stop", () => {
-                const audioBlob = new Blob(audioChunks);
-                const formData = new FormData();
-                formData.append('audio', audioBlob, 'audio.wav');
-
-                fetch('/upload-audio', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => alert(JSON.stringify(data)))
-                .catch(error => alert('Error: ' + error));
-            });
-
-            setTimeout(() => {
-                mediaRecorder.stop();
-            }, 5000); // Record for 5 seconds
+            document.getElementById('startRecording').disabled = true;
+            document.getElementById('stopRecording').disabled = false;
         })
-        .catch(error => alert('Error accessing microphone: ' + error));
-});
-document.getElementById("start-recording").addEventListener("click", function() {
-    fetch("/start-recording", {
-        method: "POST",
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert(data.message);
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+        .catch(error => console.error('Error accessing microphone:', error));
 });
 
-document.getElementById("stop-recording").addEventListener("click", function() {
-    fetch("/stop-recording", {
-        method: "POST",
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            alert(data.message);
-        } else {
-            alert("Error: " + data.message);
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+document.getElementById('stopRecording').addEventListener('click', function() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        mediaRecorder.addEventListener("stop", () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'audio.wav');
+
+            fetch('/upload-audio', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                document.getElementById('transcription').textContent = data.transcript || 'No transcription available';
+            })
+            .catch(error => console.error('Error:', error));
+
+            document.getElementById('startRecording').disabled = false;
+            document.getElementById('stopRecording').disabled = true;
+        });
+    }
 });

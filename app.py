@@ -113,29 +113,27 @@ def upload_audio():
     except Exception as e:
         return jsonify({"status": "error", "message": "Failed to read audio file"}), 400
 
-@app.route('/start-recording', methods=['POST'])
-def start_recording():
+@app.route('/upload-audio', methods=['POST'])
+def upload_audio():
+    if 'audio' not in request.files:
+        return jsonify({"status": "error", "message": "No audio file provided"}), 400
+
     try:
-        print("Starting audio recording...")
-        result = actions.get_utterance()
-        print(f"Recording result: {result}")
+        audio_file = request.files['audio']
+        audio_data = audio_file.read()
+
+        result = actions.get_utterance(audio_data=audio_data)
         
         if result is None or result == "":
-            return jsonify({'status': 'error', 'message': 'No audio recorded or transcribed'}), 500
+            return jsonify({"status": "error", "message": "No audio recorded or transcribed"}), 500
         
         if "Error" in result:
-            return jsonify({'status': 'error', 'message': result}), 500
+            return jsonify({"status": "error", "message": result}), 500
         
-        return jsonify({'status': 'success', 'message': 'Recording completed successfully', 'transcript': result}), 200
+        return jsonify({"status": "success", "message": "Audio processed successfully", "transcript": result}), 200
     except Exception as e:
-        print(f"Error during recording: {str(e)}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
-
-@app.route('/stop-recording', methods=['POST'])
-def stop_recording():
-    # Implement the logic to stop recording if needed
-    print("Stop recording endpoint called")
-    return jsonify({'status': 'success', 'message': 'Recording stopped successfully'})
+        print(f"Error processing audio: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 # @app.route('/start-recording', methods=['POST'])
