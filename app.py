@@ -5,6 +5,7 @@ import speech_recognition as sr
 import base64
 import argparse
 import os
+import contextlib
 
 app = Flask(__name__, static_folder="web/static", template_folder="web")
 
