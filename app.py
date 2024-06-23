@@ -145,16 +145,16 @@ if __name__ == "__main__":
         print("################## Press Ctrl + C to exit #####################\n")
 
         app.run(debug=True, host="0.0.0.0", port=port)
-    if args.audio:
-        os.system("clear")
-        print("\n===============================================================")
-        print("  Starting audio recording...")
-        print("===============================================================\n")
-        print("################## Press Ctrl + C to exit #####################\n")
-        try:
-            # Suppress ALSA warnings
-            with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
-                result = actions.get_utterance()
-            print(f"Transcript: {result}")
-        except Exception as e:
-            print(f"Error during audio recording: {str(e)}")
+        if args.audio:
+            os.system("clear")
+            print("\n===============================================================")
+            print("  Starting audio recording...")
+            print("===============================================================\n")
+            print("################## Press Ctrl + C to exit #####################\n")
+            try:
+                # Suppress ALSA warnings
+                with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
+                    result = actions.get_utterance()
+                print(f"Transcript: {result}")
+            except Exception as e:
+                print(f"Error during audio recording: {str(e)}")
