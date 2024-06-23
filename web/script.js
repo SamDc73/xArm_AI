@@ -1,45 +1,48 @@
+const API_KEY = 'your-api-key'; // Replace with your actual API key
+
+function sendApiRequest(endpoint, data) {
+    return fetch(`/api/${endpoint}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': API_KEY
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data);
+        alert(JSON.stringify(data));
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    });
+}
+
 function rotateArm() {
     const degreesX = document.getElementById('degreesX').value;
     const degreesY = document.getElementById('degreesY').value;
     const degreesZ = document.getElementById('degreesZ').value;
-    fetch('/rotate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ degreesX, degreesY, degreesZ })
-    }).then(response => response.json())
-      .then(data => alert(JSON.stringify(data)))
-      .catch(error => alert('Error: ' + error));
+    sendApiRequest('rotate', { degreesX, degreesY, degreesZ });
 }
 
 function translateArm() {
     const x = document.getElementById('translateX').value;
     const y = document.getElementById('translateY').value;
     const z = document.getElementById('translateZ').value;
-    fetch('/translate', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ x, y, z })
-    }).then(response => response.json())
-      .then(data => alert(JSON.stringify(data)))
-      .catch(error => alert('Error: ' + error));
+    sendApiRequest('translate', { x, y, z });
 }
 
 function controlGripper() {
     const action = document.getElementById('gripperAction').value;
     const force = document.getElementById('gripperForce').value;
-    fetch('/gripper', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action, force })
-    }).then(response => response.json())
-      .then(data => alert(JSON.stringify(data)))
-      .catch(error => alert('Error: ' + error));
+    sendApiRequest('gripper', { action, force });
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -102,8 +105,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         formData.append('audio', audioBlob, 'audio.wav');
 
         console.log('Sending audio to server');
-        fetch('/upload-audio', {
+        fetch('/api/upload-audio', {
             method: 'POST',
+            headers: {
+                'X-API-Key': API_KEY
+            },
             body: formData
         })
         .then(response => {

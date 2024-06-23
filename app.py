@@ -7,11 +7,24 @@ import base64
 import argparse
 import os
 import contextlib
+from config import Config
+from functools import wraps
 
 app = Flask(__name__, static_folder="web", template_folder="web")
+app.config.from_object(Config)
+
+def require_api_key(view_function):
+    @wraps(view_function)
+    def decorated_function(*args, **kwargs):
+        if request.headers.get('X-API-Key') and request.headers.get('X-API-Key') == app.config['API_KEY']:
+            return view_function(*args, **kwargs)
+        else:
+            return jsonify({"error": "Invalid or missing API key"}), 401
+    return decorated_function
 
 
-@app.route("/rotate", methods=["POST"])
+@app.route("/api/rotate", methods=["POST"])
+@require_api_key
 def rotate():
     if request.method == "POST":
         data = request.get_json()
@@ -35,7 +48,8 @@ def rotate():
             )
 
 
-@app.route("/translate", methods=["POST"])
+@app.route("/api/translate", methods=["POST"])
+@require_api_key
 def translate():
     if request.method == "POST":
         data = request.get_json()
@@ -59,7 +73,8 @@ def translate():
             )
 
 
-@app.route("/gripper", methods=["POST"])
+@app.route("/api/gripper", methods=["POST"])
+@require_api_key
 def gripper():
     if request.method == "POST":
         data = request.get_json()
@@ -96,7 +111,8 @@ def index():
     )  # Ensure this file exists in the 'web' directory
 
 
-@app.route('/upload-audio', methods=['POST'])
+@app.route('/api/upload-audio', methods=['POST'])
+@require_api_key
 def upload_audio():
     if 'audio' not in request.files:
         return jsonify({"status": "error", "message": "No audio file provided"}), 400
