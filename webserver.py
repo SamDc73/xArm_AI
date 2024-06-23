@@ -39,6 +39,26 @@ def translate():
                 return jsonify({'error': f'Failed to translate arm: {str(e)}'}), 500
         else:
             return jsonify({'error': 'Translation values not provided in the request'}), 400
+        
+        
+@app.route('/gripper', methods=['POST'])
+def gripper():
+    if request.method == 'POST':
+        data = request.get_json()
+        action = data.get('action')
+        force = float(data.get('force'))
+
+        if action is not None and force is not None:
+            try:
+                actions.gripper_arm(action, force)
+                return jsonify({'message': 'Arm gripper action completed successfully'})
+            except Exception as e:
+                return jsonify({'error': f'Failed to perform gripper action: {str(e)}'}), 500
+        else:
+            return jsonify({'error': 'Gripper action or force not provided in the request'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+
+
