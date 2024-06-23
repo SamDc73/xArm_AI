@@ -14,43 +14,56 @@ OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 def arm_setup(enable_motion=True):
     ip = "192.168.1.213"
-    arm = XArmAPI(ip, is_radian=True)
-    arm.motion_enable(enable=True)
-    arm.set_mode(0 if enable_motion else 2)
-    arm.set_state(state=0)
-    return arm
+    try:
+        arm = XArmAPI(ip, is_radian=True)
+        arm.motion_enable(enable=True)
+        arm.set_mode(0 if enable_motion else 2)
+        arm.set_state(state=0)
+        return arm
+    except Exception as e:
+        print(f"Error setting up arm: {str(e)}")
+        return None
 
 
 def arm_translate(x, y, z):
     arm = arm_setup()
-    _, [currentX, currentY, currentZ, roll, pitch, yaw] = arm.get_position(
-        is_radian=True
-    )
-    arm.set_position(
-        x=currentX + (x * 10), y=currentY + (y * 10), z=currentZ + (z * 10), roll=roll, pitch=pitch, yaw=yaw
-    )
+    try:
+        _, [currentX, currentY, currentZ, roll, pitch, yaw] = arm.get_position(
+            is_radian=True
+        )
+        arm.set_position(
+            x=currentX + (x * 10), y=currentY + (y * 10), z=currentZ + (z * 10), roll=roll, pitch=pitch, yaw=yaw
+        )
+    except Exception as e:
+        print(f"Error translating arm: {str(e)}")
 
 
 def arm_rotate(roll, pitch, yaw):
     arm = arm_setup()
-    _, [_, _, _, currentRoll, currentPitch, currentYaw] = arm.get_position(
-        is_radian=True
-    )
-    arm.set_position(
-        roll=currentRoll + roll, pitch=currentPitch + pitch, yaw=currentYaw + yaw
-    )
+    try:
+        _, [_, _, _, currentRoll, currentPitch, currentYaw] = arm.get_position(
+            is_radian=True
+        )
+        arm.set_position(
+            roll=currentRoll + roll, pitch=currentPitch + pitch, yaw=currentYaw + yaw
+        )
+    except Exception as e:
+        print(f"Error rotating arm: {str(e)}")
 
 def arm_gripper(action, force=None):
     arm = arm_setup()
-    if action == 'open':
-        # Open the gripper fully without applying any force parameter
-        arm.set_gripper_position(arm.gripper.get_open_position())
-    elif action == 'close':
-        if force is not None:
-            # Close the gripper with specified force to hold objects gently
-            arm.set_gripper_force(force)
-        # Move the gripper to the close position or to a position that applies the set force
-        arm.set_gripper_position(arm.gripper.get_close_position())
+    try:
+        if action == 'open':
+            # Open the gripper fully without applying any force parameter
+            arm.set_gripper_position(arm.gripper.get_open_position())
+        elif action == 'close':
+            if force is not None:
+                # Close the gripper with specified force to hold objects gently
+                arm.set_gripper_force(force)
+            # Move the gripper to the close position or to a position that applies the set force
+            arm.set_gripper_position(arm.gripper.get_close_position())
+    except Exception as e:
+        print(f"Error controlling gripper: {str(e)}")
         
 
 def get_utterance(audio_data=None):
@@ -78,18 +91,22 @@ def get_utterance(audio_data=None):
 
     print("Processing...")
 
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    try:
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    audio_data = io.BytesIO(audio.get_wav_data())
-    audio_data.name = "audio.wav"
+        audio_data = io.BytesIO(audio.get_wav_data())
+        audio_data.name = "audio.wav"
 
-    transcript = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_data,
-        response_format="text",
-    )
-    print(transcript)
-    return transcript
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_data,
+            response_format="text",
+        )
+        print(transcript)
+        return transcript
+    except Exception as e:
+        print(f"Error processing audio: {str(e)}")
+        return "Error processing audio."
 
 
 client = OpenAI()

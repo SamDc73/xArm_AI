@@ -19,8 +19,11 @@ def rotate():
 
         if degreesX is not None and degreesY is not None and degreesZ is not None:
             try:
-                actions.rotate_arm(degreesX, degreesY, degreesZ)
-                return jsonify({"message": "Arm rotated successfully"})
+                try:
+                    actions.rotate_arm(degreesX, degreesY, degreesZ)
+                    return jsonify({"message": "Arm rotated successfully"})
+                except Exception as e:
+                    return jsonify({"error": f"Failed to rotate arm: {str(e)}"}), 500
             except Exception as e:
                 return jsonify({"error": f"Failed to rotate arm: {str(e)}"}), 500
         else:
@@ -40,8 +43,11 @@ def translate():
 
         if x is not None and y is not None and z is not None:
             try:
-                actions.translate_arm(x, y, z)
-                return jsonify({"message": "Arm translated successfully"})
+                try:
+                    actions.translate_arm(x, y, z)
+                    return jsonify({"message": "Arm translated successfully"})
+                except Exception as e:
+                    return jsonify({"error": f"Failed to translate arm: {str(e)}"}), 500
             except Exception as e:
                 return jsonify({"error": f"Failed to translate arm: {str(e)}"}), 500
         else:
@@ -60,8 +66,11 @@ def gripper():
 
         if action is not None and force is not None:
             try:
-                actions.gripper_arm(action, force)
-                return jsonify({"message": "Arm gripper action completed successfully"})
+                try:
+                    actions.gripper_arm(action, force)
+                    return jsonify({"message": "Arm gripper action completed successfully"})
+                except Exception as e:
+                    return jsonify({"error": f"Failed to perform gripper action: {str(e)}"}), 500
             except Exception as e:
                 return (
                     jsonify({"error": f"Failed to perform gripper action: {str(e)}"}),
@@ -90,14 +99,17 @@ def upload_audio():
     if 'audio' not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
-    audio_file = request.files['audio']
-    audio_data = audio_file.read()
-
     try:
-        result = actions.get_utterance(audio_data=audio_data)
-        return jsonify({"status": "success", "message": "Audio processed successfully", "transcript": result}), 200
+        audio_file = request.files['audio']
+        audio_data = audio_file.read()
+
+        try:
+            result = actions.get_utterance(audio_data=audio_data)
+            return jsonify({"status": "success", "message": "Audio processed successfully", "transcript": result}), 200
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify({"status": "error", "message": "Failed to read audio file"}), 400
 
 def start_recording():
     # Dummy return to test the web app functionality
@@ -138,8 +150,11 @@ if __name__ == "__main__":
         print("  Starting audio recording...")
         print("===============================================================\n")
         print("################## Press Ctrl + C to exit #####################\n")
-        result = actions.get_utterance()
-        print(f"Transcript: {result}")
+        try:
+            result = actions.get_utterance()
+            print(f"Transcript: {result}")
+        except Exception as e:
+            print(f"Error during audio recording: {str(e)}")
         port = 5000
         os.system("clear")
         print("\n===============================================================")
