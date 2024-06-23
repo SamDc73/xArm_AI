@@ -96,23 +96,6 @@ def index():
     )  # Ensure this file exists in the 'web' directory
 
 
-@app.route("/upload-audio", methods=["POST"])
-def upload_audio():
-    if 'audio' not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
-
-    try:
-        audio_file = request.files['audio']
-        audio_data = audio_file.read()
-
-        try:
-            result = actions.get_utterance(audio_data=audio_data)
-            return jsonify({"status": "success", "message": "Audio processed successfully", "transcript": result}), 200
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-    except Exception as e:
-        return jsonify({"status": "error", "message": "Failed to read audio file"}), 400
-
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
     if 'audio' not in request.files:
