@@ -156,6 +156,5 @@ if __name__ == "__main__":
                 # Suppress ALSA warnings
                 with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
                     run_audio_conversation()
-                print(f"Transcript: {result}")
             except Exception as e:
                 print(f"Error during audio recording: {str(e)}")
