@@ -43,8 +43,33 @@ function controlGripper() {
 }
 
 document.getElementById('recordButton').addEventListener('click', function() {
-    fetch('/start-recording', { method: 'POST' })
-        .then(response => response.json())
-        .then(data => alert(JSON.stringify(data)))
-        .catch(error => alert('Error: ' + error));
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            const audioChunks = [];
+            mediaRecorder.addEventListener("dataavailable", event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener("stop", () => {
+                const audioBlob = new Blob(audioChunks);
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'audio.wav');
+
+                fetch('/upload-audio', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => alert(JSON.stringify(data)))
+                .catch(error => alert('Error: ' + error));
+            });
+
+            setTimeout(() => {
+                mediaRecorder.stop();
+            }, 5000); // Record for 5 seconds
+        })
+        .catch(error => alert('Error accessing microphone: ' + error));
 });
