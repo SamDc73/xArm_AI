@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request
 import subprocess
 import action_grippers as actions
+from action_grippers import main as run_audio_conversation
 import speech_recognition as sr
 import base64
 import argparse
@@ -154,7 +155,7 @@ if __name__ == "__main__":
             try:
                 # Suppress ALSA warnings
                 with open(os.devnull, 'w') as f, contextlib.redirect_stderr(f):
-                    result = actions.get_utterance()
+                    run_audio_conversation()
                 print(f"Transcript: {result}")
             except Exception as e:
                 print(f"Error during audio recording: {str(e)}")
