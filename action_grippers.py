@@ -71,7 +71,7 @@ def get_utterance(audio_data=None):
                 print("Say something!")
 
                 # Increase timeout and phrase time limit
-                audio = r.listen(source, timeout=60, phrase_time_limit=5)
+                audio = r.listen(source, timeout=10, phrase_time_limit=5)
             except Exception as e:
                 print(f"Error: {str(e)}")  # Customize or handle logging
                 return "Device not connected or audio setup issue."
